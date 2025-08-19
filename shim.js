@@ -1,6 +1,6 @@
-(function () {
-  if (window.deck && window.WeatherLayers && window.deck.JSONConverter) {
-    try {
+(function waitAndRegister() {
+  function tryRegister() {
+    if (window.deck && window.WeatherLayers && window.deck.JSONConverter) {
       const layers = [
         'ParticleLayer',
         'RasterLayer',
@@ -17,10 +17,10 @@
           console.log(`[shim] Registered WeatherLayers.${name}`);
         }
       });
-    } catch (err) {
-      console.error('[shim] Failed to register WeatherLayers layers', err);
+    } else {
+      setTimeout(tryRegister, 200);
     }
-  } else {
-    console.warn('[shim] deck.gl or WeatherLayers not available yet');
   }
+
+  tryRegister();
 })();

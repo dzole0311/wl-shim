@@ -1,38 +1,34 @@
-(function () {
-  function register() {
-    if (window.deck && window.WeatherLayers) {
-      try {
-        const layers = [
-          'ParticleLayer',
-          'RasterLayer',
-          'ContourLayer',
-          'HighLowLayer',
-          'FrontLayer',
-          'GridLayer'
-        ];
-
-        layers.forEach(name => {
-          const cls = window.WeatherLayers[name];
-          if (cls) {
-            if (window.deck._registerJSClass) {
-              window.deck._registerJSClass(cls, `WeatherLayers.${name}`);
-              console.log(`[shim] _registerJSClass → WeatherLayers.${name}`);
-            } else if (window.deck.JSONConverter && window.deck.JSONConverter.addClass) {
-              window.deck.JSONConverter.addClass(`WeatherLayers.${name}`, cls);
-              console.log(`[shim] JSONConverter.addClass → WeatherLayers.${name}`);
-            } else {
-              console.warn('[shim] No registration API found in deck.gl');
+(function() {
+    'use strict';
+    
+    console.log('[shim] WeatherLayers export helper loading...');
+    
+    function waitForWeatherLayers() {
+        if (window.WeatherLayers) {
+            console.log('[shim] WeatherLayers found, checking exports...');
+            
+            const expectedClasses = ['ParticleLayer', 'RasterLayer', 'ContourLayer', 'HighLowLayer', 'FrontLayer', 'GridLayer'];
+            
+            expectedClasses.forEach(className => {
+                if (window.WeatherLayers[className]) {
+                    console.log(`[shim] ✓ WeatherLayers.${className} available`);
+                } else {
+                    console.warn(`[shim] ✗ WeatherLayers.${className} NOT found`);
+                }
+            });
+            
+            if (!window.WeatherLayers.ParticleLayer && window.WeatherLayers.default) {
+                console.log('[shim] Trying to extract from .default export...');
+                Object.assign(window.WeatherLayers, window.WeatherLayers.default);
             }
-          }
-        });
-      } catch (err) {
-        console.error('[shim] Failed to register WeatherLayers layers', err);
-      }
-    } else {
-      console.warn('[shim] deck.gl or WeatherLayers not available yet, retrying…');
-      setTimeout(register, 500);
+            
+            console.log('[shim] WeatherLayers structure:', Object.keys(window.WeatherLayers));
+            
+        } else {
+            setTimeout(waitForWeatherLayers, 100);
+        }
     }
-  }
-
-  register();
+    
+    waitForWeatherLayers();
+    
 })();

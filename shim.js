@@ -1,26 +1,31 @@
-(function waitAndRegister() {
-  function tryRegister() {
-    if (window.deck && window.WeatherLayers && window.deck.JSONConverter) {
-      const layers = [
-        'ParticleLayer',
-        'RasterLayer',
-        'ContourLayer',
-        'HighLowLayer',
-        'FrontLayer',
-        'GridLayer'
-      ];
+(function () {
+  function register() {
+    if (window.deck && window.WeatherLayers) {
+      try {
+        const layers = [
+          'ParticleLayer',
+          'RasterLayer',
+          'ContourLayer',
+          'HighLowLayer',
+          'FrontLayer',
+          'GridLayer'
+        ];
 
-      layers.forEach(name => {
-        const cls = window.WeatherLayers[name];
-        if (cls) {
-          window.deck.JSONConverter.registerClass(cls);
-          console.log(`[shim] Registered WeatherLayers.${name}`);
-        }
-      });
+        layers.forEach(name => {
+          const cls = window.WeatherLayers[name];
+          if (cls) {
+            window.deck._registerJSClass(cls, `WeatherLayers.${name}`);
+            console.log(`[shim] Registered WeatherLayers.${name}`);
+          }
+        });
+      } catch (err) {
+        console.error('[shim] Failed to register WeatherLayers layers', err);
+      }
     } else {
-      setTimeout(tryRegister, 200);
+      console.warn('[shim] deck.gl or WeatherLayers not available yet');
+      setTimeout(register, 500);
     }
   }
 
-  tryRegister();
+  register();
 })();
